@@ -45,7 +45,7 @@ button {
 </div>
 
 <script>
-const DAY_NUMBER = 1;
+const DAY_NUMBER = {{DAY_NUMBER}};
 
 const unlockedDay = parseInt(localStorage.getItem("unlockedDay") || "1");
 if (DAY_NUMBER > unlockedDay) {
@@ -56,7 +56,6 @@ const QUESTIONS = [{"question":"What color is grass?","options":["Yellow","Green
 
 let index = 0;
 let score = 0;
-let quizSubmitted = false;
 
 function loadQuestion() {
     document.getElementById("progress").innerText =
@@ -77,9 +76,7 @@ function loadQuestion() {
 }
 
 function answer(isCorrect) {
-    if (quizSubmitted) return;
-
-    if (isCorrect) {
+     if (isCorrect) {
         score++;
         showMessage("🎉 Great job!", true);
 
@@ -88,7 +85,7 @@ function answer(isCorrect) {
             if (index < QUESTIONS.length) {
                 loadQuestion();
             } else {
-                finishQuiz();
+                Android.onQuizCompleted(score, QUESTIONS.length);
             }
         }, 800);
     } else {
@@ -96,14 +93,6 @@ function answer(isCorrect) {
     }
 }
 
-function finishQuiz() {
-    if (quizSubmitted) return;
-    quizSubmitted = true;
-
-    if (window.Android && Android.onQuizCompleted) {
-        Android.onQuizCompleted(score, QUESTIONS.length);
-    }
-}
 
 function showMessage(text, isCorrect) {
     const msg = document.getElementById("message");
