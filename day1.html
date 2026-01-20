@@ -45,7 +45,7 @@ button {
 </div>
 
 <script>
-const DAY_NUMBER = {{DAY_NUMBER}};
+const DAY_NUMBER = 1;
 
 const unlockedDay = parseInt(localStorage.getItem("unlockedDay") || "1");
 if (DAY_NUMBER > unlockedDay) {
@@ -85,9 +85,11 @@ function answer(isCorrect) {
             if (index < QUESTIONS.length) {
                 loadQuestion();
             } else {
-                Android.onQuizCompleted(score, QUESTIONS.length);
+                if (window.Android && Android.onQuizCompleted) {
+        Android.onQuizCompleted(score, QUESTIONS.length);
+      }
             }
-        }, 800);
+        }, 500);
     } else {
         showMessage("😊 Oops! Try again", false);
     }
@@ -100,7 +102,7 @@ function showMessage(text, isCorrect) {
     msg.style.color = isCorrect ? "#4CAF50" : "#FF5722";
     msg.style.display = "block";
 
-    setTimeout(() => msg.style.display = "none", 1200);
+    setTimeout(() => msg.style.display = "none", 500);
 }
 
 loadQuestion();

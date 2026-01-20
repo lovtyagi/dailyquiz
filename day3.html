@@ -45,7 +45,7 @@ button {
 </div>
 
 <script>
-const DAY_NUMBER = {{DAY_NUMBER}};
+const DAY_NUMBER = 3;
 
 const unlockedDay = parseInt(localStorage.getItem("unlockedDay") || "1");
 if (DAY_NUMBER > unlockedDay) {
@@ -85,7 +85,9 @@ function answer(isCorrect) {
             if (index < QUESTIONS.length) {
                 loadQuestion();
             } else {
-                Android.onQuizCompleted(score, QUESTIONS.length);
+                if (window.Android && Android.onQuizCompleted) {
+        Android.onQuizCompleted(score, QUESTIONS.length);
+      }
             }
         }, 800);
     } else {
