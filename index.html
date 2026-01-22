@@ -1,208 +1,79 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kids Daily Quiz</title>
-<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js">
-if (!localStorage.getItem("unlockedDay")) {
-    localStorage.setItem("unlockedDay", "1");
-}
-if (!localStorage.getItem("stars")) {
-    localStorage.setItem("stars", "0");
-}
-</script>
+<title>Daily Quiz</title>
 
 <style>
 body {
     margin: 0;
-    font-family: 'Comic Sans MS', Arial;
-    background: linear-gradient(#E1F5FE, #B3E5FC);
+    font-family: "Comic Sans MS", Arial, sans-serif;
+    background: linear-gradient(#FFECB3, #FFE082);
     text-align: center;
 }
 
-.header {
-    background: #03A9F4;
-    color: white;
-    padding: 18px;
-    font-size: 26px;
-    font-weight: bold;
+h1 {
+    color: #FF7043;
 }
 
-.stars {
-    margin: 10px;
-    font-size: 20px;
-    color: #FF9800;
-}
-
-.container {
-    padding: 20px;
-}
-
-.start-btn {
-    background: #4CAF50;
-    color: white;
-    font-size: 22px;
-    padding: 16px;
-    border-radius: 20px;
-    border: none;
-    width: 90%;
-    max-width: 320px;
-}
-
-.day-grid {
+.days {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 14px;
-    margin-top: 20px;
+    padding: 20px;
+    max-width: 420px;
+    margin: auto;
 }
 
 .day-btn {
-    background: white;
-    border-radius: 16px;
-    padding: 14px;
+    padding: 18px;
     font-size: 18px;
+    border-radius: 16px;
     border: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+    background: #4CAF50;
+    color: white;
 }
 
-.locked {
-    background: #E0E0E0;
-    color: #999;
+.day-btn.locked {
+    background: #BDBDBD;
+    cursor: not-allowed;
 }
 
-.footer {
-    margin: 25px;
-    font-size: 14px;
-    color: #555;
+.day-btn:active {
+    transform: scale(0.95);
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-    🧠 Kids Daily Quiz
-</div>
+<h1>📅 Daily Quiz</h1>
 
-<div class="stars" id="starsText">
-    ⭐ Stars: 0
-</div>
-
-<!-- Lottie Animation -->
-<lottie-player
-    src="https://assets10.lottiefiles.com/packages/lf20_jcikwtux.json"
-    background="transparent"
-    speed="1"
-    style="width:200px;height:200px;margin:auto"
-    loop
-    autoplay>
-</lottie-player>
-
-<div class="container">
-
-    <button class="start-btn" onclick="openTodayQuiz()">
-        ▶ Start Today’s Quiz
-    </button>
-
-    <h3>📅 Daily Levels</h3>
-
-    <div class="day-grid" id="dayGrid"></div>
-
-    <div class="footer">
-        🌟 Learn • Play • Grow 🌟
-    </div>
-</div>
+<div class="days" id="days"></div>
 
 <script>
-/* ---------- VOICE WELCOME ---------- */
-window.onload = () => {
-    speak("Hello! Let's play today's quiz!");
-    updateStars();
-    renderDays();
-};
-
-function speak(text) {
-    if ('speechSynthesis' in window) {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.rate = 0.9;
-        msg.pitch = 1.1;
-        speechSynthesis.speak(msg);
-    }
-}
-
-/* ---------- STARS SYSTEM ---------- */
-function updateStars() {
-    const stars = localStorage.getItem("stars") || 0;
-    document.getElementById("starsText").innerText =
-        "⭐ Stars: " + stars;
-}
-
-/* ---------- DAY LOGIC ---------- */
 const TOTAL_DAYS = 10;
+const unlockedDay = parseInt(localStorage.getItem("unlockedDay") || "1");
 
-function getUnlockedDay() {
-    return parseInt(localStorage.getItem("unlockedDay") || "1");
-}
+const container = document.getElementById("days");
 
-function renderDays() {
-    const grid = document.getElementById("dayGrid");
-    grid.innerHTML = "";
+for (let i = 1; i <= TOTAL_DAYS; i++) {
+    const btn = document.createElement("button");
+    btn.className = "day-btn";
+    btn.innerText = "Day " + i;
 
-    const unlockedDay = getUnlockedDay();
-
-    for (let i = 1; i <= TOTAL_DAYS; i++) {
-        const btn = document.createElement("button");
-        btn.innerText = "Day " + i;
-        btn.className = "day-btn";
-
-        if (i > unlockedDay) {
-            btn.classList.add("locked");
-            btn.innerText += " 🔒";
-        } else {
-            btn.onclick = () => openDay(i);
-        }
-
-        grid.appendChild(btn);
-    }
-}
-
-function openTodayQuiz() {
-    const unlockedDay = getUnlockedDay();
-    openDay(unlockedDay);
-}
-
-function openDay(day) {
-    window.location.href = "day" + day + ".html";
-}
-
-/* ---------- CALLED FROM ANDROID ---------- */
-
-/* ---------- CALLED FROM ANDROID WHEN QUIZ COMPLETES ---------- */
-
-function onQuizCompleted(score) {
-    // ⭐ Update stars + unlock next day
-    unlockNextDay(score);
-
-    // 🎉 Kid-friendly voice feedback
-    speak("Great job! You earned " + score + " stars!");
-
-    // Optional: visual alert
-    alert("🎉 Great job!\nYou earned " + score + " ⭐");
-}
-
-function unlockNextDay(score) {
-    let stars = parseInt(localStorage.getItem("stars") || "0");
-    stars += score;
-    localStorage.setItem("stars", stars);
-
-    let unlockedDay = getUnlockedDay();
-    if (unlockedDay < TOTAL_DAYS) {
-        localStorage.setItem("unlockedDay", unlockedDay + 1);
+    if (i > unlockedDay) {
+        btn.classList.add("locked");
+        btn.innerText += " 🔒";
+    } else {
+        btn.onclick = () => {
+            window.location.href = "day" + i + ".html";
+        };
     }
 
-    updateStars();
-    renderDays();
+    container.appendChild(btn);
 }
 </script>
 

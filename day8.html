@@ -5,61 +5,248 @@
 <title>Daily Quiz</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial;
-    background: #FFF8E1;
-    text-align: center;
+    margin: 0;
+    font-family: "Comic Sans MS", "Arial Rounded MT Bold", sans-serif;
+    background: linear-gradient(180deg, #FFECB3, #FFE082);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.card {
-    background: white;
-    border-radius: 20px;
-    padding: 20px;
+
+.quiz-card {
+    background: #ffffff;
+    width: 90%;
     max-width: 420px;
-    margin: auto;
+    border-radius: 24px;
+    padding: 22px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    animation: popIn 0.4s ease;
 }
-button {
+
+@keyframes popIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+h2 {
+    margin: 0 0 10px;
+    color: #FF7043;
+}
+
+.progress-text {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #EEE;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #66BB6A, #43A047);
+    transition: width 0.4s ease;
+}
+
+.question {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.option-btn {
     width: 100%;
     padding: 14px;
-    margin: 10px 0;
+    margin: 8px 0;
     font-size: 18px;
-    border-radius: 15px;
+    border-radius: 16px;
     border: none;
-    background: #4CAF50;
-    color: white;
+    cursor: pointer;
+    background: #E3F2FD;
+    transition: all 0.2s ease;
 }
-.progress {
-    font-size: 16px;
-    color: #FF9800;
+
+.option-btn:hover {
+    transform: scale(1.03);
+}
+
+.option-btn.correct {
+    background: #C8E6C9;
+}
+
+.option-btn.wrong {
+    background: #FFCDD2;
+    animation: shake 0.3s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+}
+
+.message {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 14px;
+}
+
+.result {
+    text-align: center;
+}
+
+.result h1 {
+    font-size: 26px;
+    color: #4CAF50;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="quiz-card" id="card">
     <h2>🧠 Daily Quiz</h2>
-    <div class="progress" id="progress"></div>
-    <p id="question"></p>
+
+    <div class="progress-text" id="progressText"></div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="question" id="question"></div>
     <div id="options"></div>
-    <div id="message" style="display:none;font-size:20px;margin:12px;font-weight:bold;"></div>
+    <div class="message" id="message"></div>
 </div>
 
 <script>
 const DAY_NUMBER = 8;
+const QUESTIONS = [
+  {
+    "question": "What color is the sky?",
+    "options": [
+      "Blue",
+      "Red",
+      "Green"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "5 - 2 = ?",
+    "options": [
+      "2",
+      "3",
+      "4"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "Which animal can fly?",
+    "options": [
+      "Bird",
+      "Dog",
+      "Cow"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "How many days are in a week?",
+    "options": [
+      "5",
+      "7",
+      "10"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "What color is grass?",
+    "options": [
+      "Yellow",
+      "Green",
+      "Blue"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "2 + 3 = ?",
+    "options": [
+      "4",
+      "5",
+      "6"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "Which animal says Moo?",
+    "options": [
+      "Dog",
+      "Cow",
+      "Cat"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "What comes after 3?",
+    "options": [
+      "4",
+      "5",
+      "6"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "Which animal says Moo?",
+    "options": [
+      "Dog",
+      "Cow",
+      "Cat"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "Which animal says Moo?",
+    "options": [
+      "Dog",
+      "Cow",
+      "Cat"
+    ],
+    "correctIndex": 1
+  }
+];
 
 const unlockedDay = parseInt(localStorage.getItem("unlockedDay") || "1");
 if (DAY_NUMBER > unlockedDay) {
     window.location.href = "index.html";
 }
 
-const QUESTIONS = [{"question":"What color is the sky?","options":["Blue","Red","Green"],"correctIndex":0},{"question":"5 - 2 = ?","options":["2","3","4"],"correctIndex":1},{"question":"Which animal can fly?","options":["Bird","Dog","Cow"],"correctIndex":0},{"question":"How many days are in a week?","options":["5","7","10"],"correctIndex":1},{"question":"What color is grass?","options":["Yellow","Green","Blue"],"correctIndex":1},{"question":"2 + 3 = ?","options":["4","5","6"],"correctIndex":1},{"question":"Which animal says Moo?","options":["Dog","Cow","Cat"],"correctIndex":1},{"question":"What comes after 3?","options":["4","5","6"],"correctIndex":0},{"question":"Which animal says Moo?","options":["Dog","Cow","Cat"],"correctIndex":1},{"question":"Which animal says Moo?","options":["Dog","Cow","Cat"],"correctIndex":1}];
-
 let index = 0;
 let score = 0;
+let locked = false;
 
 function loadQuestion() {
-    document.getElementById("progress").innerText =
-        "Question " + (index + 1) + " of " + QUESTIONS.length;
+    locked = false;
+
+    document.getElementById("message").innerText = "";
+
+    document.getElementById("progressText").innerText =
+        `Question ${index + 1} of ${QUESTIONS.length}`;
+
+    document.getElementById("progressFill").style.width =
+        ((index) / QUESTIONS.length) * 100 + "%";
 
     document.getElementById("question").innerText =
         QUESTIONS[index].question;
@@ -69,40 +256,57 @@ function loadQuestion() {
 
     QUESTIONS[index].options.forEach((opt, i) => {
         const btn = document.createElement("button");
+        btn.className = "option-btn";
         btn.innerText = opt;
-        btn.onclick = () => answer(i === QUESTIONS[index].correctIndex);
+
+        btn.onclick = () => checkAnswer(btn, i === QUESTIONS[index].correctIndex);
         optionsDiv.appendChild(btn);
     });
 }
 
-function answer(isCorrect) {
-     if (isCorrect) {
-        score++;
-        showMessage("🎉 Great job!", true);
+function checkAnswer(button, isCorrect) {
+    if (locked) return;
+    locked = true;
 
-        setTimeout(() => {
-            index++;
-            if (index < QUESTIONS.length) {
-                loadQuestion();
-            } else {
-                if (window.Android && Android.onQuizCompleted) {
-        Android.onQuizCompleted(score, QUESTIONS.length);
-      }
-            }
-        }, 800);
+    if (isCorrect) {
+        score++;
+        button.classList.add("correct");
+        showMessage("🎉 Great job!", "#4CAF50");
+
+        setTimeout(nextQuestion, 900);
     } else {
-        showMessage("😊 Oops! Try again", false);
+        button.classList.add("wrong");
+        showMessage("😊 Try again!", "#F44336");
+        locked = false;
     }
 }
 
-
-function showMessage(text, isCorrect) {
+function showMessage(text, color) {
     const msg = document.getElementById("message");
     msg.innerText = text;
-    msg.style.color = isCorrect ? "#4CAF50" : "#FF5722";
-    msg.style.display = "block";
+    msg.style.color = color;
+}
 
-    setTimeout(() => msg.style.display = "none", 1200);
+function nextQuestion() {
+    index++;
+    if (index < QUESTIONS.length) {
+        loadQuestion();
+    } else {
+        finishQuiz();
+    }
+}
+
+function finishQuiz() {
+    document.getElementById("card").innerHTML = `
+        <div class="result">
+            <h1>🏆 Well Done!</h1>
+            <p>You scored <b>${score}</b> out of <b>${QUESTIONS.length}</b></p>
+        </div>
+    `;
+
+    setTimeout(() => {
+        Android.onQuizCompleted(score, QUESTIONS.length);
+    }, 1200);
 }
 
 loadQuestion();
