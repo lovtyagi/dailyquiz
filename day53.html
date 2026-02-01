@@ -228,10 +228,6 @@ const QUESTIONS = [
   }
 ];
 
-const unlockedDay = parseInt(localStorage.getItem("unlockedDay") || "1");
-if (DAY_NUMBER > unlockedDay) {
-    window.location.href = "index.html";
-}
 
 let index = 0;
 let score = 0;
